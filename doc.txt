@@ -1,0 +1,162 @@
+You are implementing a full research-paper reproduction from scratch.
+
+Paper: "Hourglass: Enabling Efficient Split Federated Learning with Data Parallelism" (EuroSys 2025)
+
+Goal:
+Implement a COMPLETE, runnable prototype of the Hourglass system, end-to-end, following the paper strictly but pragmatically.
+
+Constraints:
+- Assume Python is NOT installed on the machine initially.
+- The project must be runnable on a fresh laptop using only terminal commands you generate.
+- Use PyTorch.
+- Single-GPU implementation must work first; multi-GPU should be optional and modular.
+- Code must be clean, modular, and well-documented.
+- This is a research reproduction, not a toy demo.
+
+High-level architecture to implement:
+1. Client-side model partition
+2. Server-side model partition
+3. Split Federated Learning workflow
+4. Hourglass shared server-side model logic
+5. Scheduler (FCFS + DFF)
+6. Optional multi-GPU extension
+7. LSH-based feature clustering (for advanced scheduling)
+8. Training loop with forward/backward split
+9. Metrics logging (loss, accuracy, convergence time)
+
+Step-by-step instructions you MUST follow:
+
+--------------------------------------------------
+STEP 1: Environment setup
+--------------------------------------------------
+- Generate commands to install Python (recommend Miniconda).
+- Create a virtual environment.
+- Install required dependencies (torch, torchvision, numpy, scikit-learn, tqdm, matplotlib).
+- Detect GPU availability automatically.
+
+--------------------------------------------------
+STEP 2: Project structure
+--------------------------------------------------
+Create the following directory structure:
+
+hourglass/
+│── README.md
+│── setup.sh
+│── requirements.txt
+│── main.py
+│
+├── datasets/
+│   └── cifar10.py
+│
+├── models/
+│   ├── client_model.py
+│   ├── server_model.py
+│   └── split_model.py
+│
+├── clients/
+│   └── client.py
+│
+├── server/
+│   ├── scheduler.py
+│   ├── trainer.py
+│   ├── aggregator.py
+│   └── lsh.py
+│
+├── utils/
+│   ├── metrics.py
+│   ├── logger.py
+│   └── config.py
+
+--------------------------------------------------
+STEP 3: Model implementation
+--------------------------------------------------
+- Use ResNet-18 or VGG-16 as baseline.
+- Split model into:
+  - Client-side: early layers
+  - Server-side: deeper layers
+- Ensure gradients flow correctly across the split boundary.
+
+--------------------------------------------------
+STEP 4: Client logic
+--------------------------------------------------
+Each client must:
+- Hold private local data
+- Run forward pass on client-side model
+- Send intermediate features to server
+- Receive gradients
+- Complete backward pass
+
+Simulate multiple clients (e.g., 10–50).
+
+--------------------------------------------------
+STEP 5: Server logic (Hourglass core)
+--------------------------------------------------
+Server must:
+- Maintain ONE shared server-side model per GPU
+- NEVER create one model per client
+- Accept intermediate features
+- Run forward + backward pass
+- Return gradients to clients
+- Aggregate models using FedAvg ONLY across GPUs (not clients)
+
+--------------------------------------------------
+STEP 6: Scheduling strategies
+--------------------------------------------------
+Implement:
+- FCFS (First Come First Serve)
+- DFF (Dissimilar Feature First)
+
+DFF requirements:
+- Compute feature embeddings
+- Measure distance (Euclidean or cosine)
+- Prefer processing most dissimilar features consecutively
+
+--------------------------------------------------
+STEP 7: LSH-based clustering (advanced)
+--------------------------------------------------
+- Implement Euclidean LSH
+- Allow features to be assigned to GPUs as they arrive
+- Do NOT wait for all clients (async-friendly)
+
+--------------------------------------------------
+STEP 8: Training loop
+--------------------------------------------------
+- Multiple FL rounds
+- Track:
+  - Accuracy
+  - Loss
+  - Time-to-accuracy
+- Compare:
+  - Baseline SplitFed (multiple server models)
+  - Hourglass shared model
+
+--------------------------------------------------
+STEP 9: Experiments
+--------------------------------------------------
+- CIFAR-10 dataset
+- Non-IID data partitioning across clients
+- Log results clearly
+
+--------------------------------------------------
+STEP 10: Documentation
+--------------------------------------------------
+- Write README.md explaining:
+  - Paper summary
+  - Architecture
+  - How to run
+  - Key differences from SplitFed
+- Add inline comments explaining how code maps to paper sections.
+
+--------------------------------------------------
+IMPORTANT RULES:
+- Generate ACTUAL working code, not pseudocode.
+- Do not skip steps.
+- Keep functions small and readable.
+- When unsure, prefer correctness over optimization.
+- Clearly mark TODOs for multi-GPU extensions.
+
+Begin by generating:
+1) setup.sh
+2) requirements.txt
+3) README.md
+Then proceed file by file.
